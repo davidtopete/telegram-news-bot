@@ -27,7 +27,27 @@ for i, art in enumerate(articulos, start=1):
     mensaje += f"{i}. {titulo}\n"
     mensaje += f"Link: {link}\n\n"
 
-mensaje = mensaje[:2500]
+# DIVIDIR MENSAJE EN PARTES
+def dividir_mensaje(texto, limite=4000):
+    partes = []
+    while len(texto) > limite:
+        partes.append(texto[:limite])
+        texto = texto[limite:]
+    partes.append(texto)
+    return partes
+
+partes = dividir_mensaje(mensaje)
+
+for parte in partes:
+    params = {
+        "chat_id": CHAT_ID,
+        "text": parte,
+        "parse_mode": "Markdown"
+    }
+
+    telegram_response = requests.post(url_telegram, data=params)
+    print("STATUS:", telegram_response.status_code)
+    print("RESPONSE:", telegram_response.text)
 
 url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
