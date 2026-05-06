@@ -47,7 +47,7 @@ for i, art in enumerate(articulos, start=1):
     mensaje += f"   {descripcion_es}\n"
     mensaje += f"   Link: {link}\n\n"
 
-mensaje = mensaje[:4000]
+mensaje = mensaje[:3000]
 # ENVIAR A TELEGRAM
 
 url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
