@@ -1,17 +1,14 @@
 import os
 import requests
 
-TOKEN = os.getenv("8722291649:AAHoOAQBBpgd5FIAiTyhhnfhxhrgiGBLmpc")
-CHAT_ID = os.getenv("1054479634")
+TOKEN = os.getenv("TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
-url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
-params = {
+response = requests.post(url, data={
     "chat_id": CHAT_ID,
     "text": "Hola"
-}
+})
 
-response = requests.post(url_telegram, data=params)
-
-print("STATUS:", response.status_code)
-print("RESPONSE:", response.text)
+print(response.text)
