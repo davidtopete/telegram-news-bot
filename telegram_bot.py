@@ -2,61 +2,49 @@ import os
 import requests
 from datetime import datetime
 
-TOKEN = "8722291649:AAHoOAQBBpgd5FIAiTyhhnfhxhrgiGBLmpc"
-CHAT_ID = "1054479634"
-NEWS_API_KEY = "8ae3d3cc425f4956a20c5d8e4da703d4"
+TOKEN = os.getenv("8722291649:AAHoOAQBBpgd5FIAiTyhhnfhxhrgiGBLmpc")
+CHAT_ID = os.getenv("1054479634")
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 fecha_hoy = datetime.now().strftime("%d/%m/%Y")
 
-url_news = f"https://newsapi.org/v2/top-headlines?language=en&pageSize=5&apiKey={NEWS_API_KEY}"
+url_news = f"https://newsapi.org/v2/top-headlines?language=en&pageSize=10&apiKey={NEWS_API_KEY}"
 data = requests.get(url_news).json()
 
 articulos = data.get("articles", [])
 
-mensaje = f"""GLOBAL NEWS DASHBOARD — TODAY
+url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+
+# Mensaje inicial
+intro = f"""GLOBAL NEWS DASHBOARD — TODAY
 
 Fecha: {fecha_hoy}
 Cobertura: últimas 24 horas
-
 """
 
+requests.post(url_telegram, data={
+    "chat_id": CHAT_ID,
+    "text": intro
+})
+
+# Enviar una noticia por mensaje
 for i, art in enumerate(articulos, start=1):
     titulo = art.get("title", "Sin título")
+    descripcion = art.get("description", "Sin descripción disponible.")
     link = art.get("url", "Sin link")
 
-    mensaje += f"{i}. {titulo}\n"
-    mensaje += f"Link: {link}\n\n"
+    mensaje = f"""{i}. {titulo}
 
-# DIVIDIR MENSAJE EN PARTES
-def dividir_mensaje(texto, limite=4000):
-    partes = []
-    while len(texto) > limite:
-        partes.append(texto[:limite])
-        texto = texto[limite:]
-    partes.append(texto)
-    return partes
+Fecha: {fecha_hoy}
+{descripcion}
 
-partes = dividir_mensaje(mensaje)
+Link: {link}
+"""
 
-for parte in partes:
-    params = {
+    response = requests.post(url_telegram, data={
         "chat_id": CHAT_ID,
-        "text": parte,
-        "parse_mode": "Markdown"
-    }
+        "text": mensaje[:3500]
+    })
 
-    telegram_response = requests.post(url_telegram, data=params)
-    print("STATUS:", telegram_response.status_code)
-    print("RESPONSE:", telegram_response.text)
-
-url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-
-params = {
-    "chat_id": CHAT_ID,
-    "text": mensaje
-}
-
-response = requests.post(url_telegram, data=params)
-
-print("TELEGRAM STATUS:", response.status_code)
-print("TELEGRAM RESPONSE:", response.text)
+    print("STATUS:", response.status_code)
+    print("RESPONSE:", response.text)
