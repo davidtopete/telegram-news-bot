@@ -59,4 +59,5 @@ params = {
 
 telegram_response = requests.post(url_telegram, data=params)
 
-print(telegram_response.json())
+print("TELEGRAM STATUS:", telegram_response.status_code)
+print("TELEGRAM RESPONSE:", telegram_response.text)
