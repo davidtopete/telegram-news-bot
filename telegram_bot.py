@@ -48,17 +48,21 @@ for i, art in enumerate(articulos, start=1):
     mensaje += f"   Link: {link}\n\n"
 
 mensaje = mensaje[:3000]
-# ENVIAR A TELEGRAM
 
+# ENVIAR A TELEGRAM
 url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+
+# Cortar mensaje para evitar límite de Telegram
+mensaje = mensaje[:3000]
 
 params = {
     "chat_id": CHAT_ID,
-    "text": mensaje,
-    "parse_mode": "Markdown"
+    "text": mensaje
 }
 
 telegram_response = requests.post(url_telegram, data=params)
 
+print("TELEGRAM STATUS:", telegram_response.status_code)
+print("TELEGRAM RESPONSE:", telegram_response.text)
 print("TELEGRAM STATUS:", telegram_response.status_code)
 print("TELEGRAM RESPONSE:", telegram_response.text)
