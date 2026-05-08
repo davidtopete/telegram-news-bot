@@ -1,5 +1,6 @@
 import os
 import time
+import html
 import requests
 from datetime import datetime
 from deep_translator import GoogleTranslator
@@ -27,16 +28,16 @@ traductor = GoogleTranslator(source="auto", target="es")
 
 url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
-intro = f"""**GLOBAL NEWS DASHBOARD — TODAY**
+intro = f"""<b>GLOBAL NEWS DASHBOARD — TODAY</b>
 
-**Fecha:** {fecha_hoy}
-**Cobertura:** últimas 24 horas
+<b>Fecha: {fecha_hoy}</b>
+<b>Cobertura: últimas 24 horas</b>
 """
 
 requests.post(url_telegram, data={
     "chat_id": CHAT_ID,
     "text": intro,
-    "parse_mode": "Markdown"
+    "parse_mode": "HTML"
 })
 
 time.sleep(1)
@@ -49,7 +50,11 @@ for i, art in enumerate(articulos, start=1):
     titulo_es = traductor.translate(titulo)
     descripcion_es = traductor.translate(descripcion)
 
-    mensaje = f"""{i}. **{titulo_es}**
+    titulo_es = html.escape(titulo_es)
+    descripcion_es = html.escape(descripcion_es)
+    link = html.escape(link)
+
+    mensaje = f"""{i}. <b>{titulo_es}</b>
 
 Fecha: {fecha_hoy}
 {descripcion_es}
@@ -60,7 +65,7 @@ Link: {link}
     response = requests.post(url_telegram, data={
         "chat_id": CHAT_ID,
         "text": mensaje[:3500],
-        "parse_mode": "Markdown"
+        "parse_mode": "HTML"
     })
 
     print("STATUS:", response.status_code)
