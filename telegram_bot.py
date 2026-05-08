@@ -28,6 +28,7 @@ traductor = GoogleTranslator(source="auto", target="es")
 
 url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
+# ENCABEZADO
 intro = f"""<b>GLOBAL NEWS DASHBOARD — TODAY</b>
 
 <b>Fecha: {fecha_hoy}</b>
@@ -42,6 +43,7 @@ requests.post(url_telegram, data={
 
 time.sleep(1)
 
+# NOTICIAS
 for i, art in enumerate(articulos, start=1):
     titulo = art.get("title") or "Sin título"
     descripcion = art.get("description") or "Sin descripción disponible."
@@ -56,7 +58,6 @@ for i, art in enumerate(articulos, start=1):
 
     mensaje = f"""{i}. <b>{titulo_es}</b>
 
-Fecha: {fecha_hoy}
 {descripcion_es}
 
 Link: {link}
