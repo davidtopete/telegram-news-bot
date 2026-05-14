@@ -21,14 +21,14 @@ if os.path.exists(ARCHIVO_HISTORIAL):
 else:
     noticias_enviadas = []
 
-# OBTENER NOTICIAS GLOBALES DE ALTO IMPACTO
+# OBTENER NOTICIAS GLOBALES IMPORTANTES
 url_news = (
     f"https://newsapi.org/v2/everything?"
     f"q=(AI OR economy OR geopolitics OR war OR energy OR technology OR semiconductor OR inflation OR china OR russia OR markets)&"
     f"domains=reuters.com,bbc.com,bloomberg.com,theverge.com,cnn.com&"
     f"language=en&"
     f"sortBy=publishedAt&"
-    f"pageSize=30&"
+    f"pageSize=50&"
     f"apiKey={NEWS_API_KEY}"
 )
 
@@ -46,10 +46,9 @@ traductor = GoogleTranslator(source="auto", target="es")
 url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
 # ENCABEZADO
-intro = f"""<b>GLOBAL NEWS DASHBOARD — TODAY</b>
+intro = f"""<b>GLOBAL NEWS</b>
 
-<b>Fecha: {fecha_hoy}</b>
-<b>Cobertura: últimas 24 horas</b>
+<b>{fecha_hoy}</b>
 """
 
 requests.post(url_telegram, data={
@@ -64,6 +63,7 @@ contador = 0
 
 # PROCESAR NOTICIAS
 for art in articulos:
+
     titulo = art.get("title") or "Sin título"
     descripcion = art.get("description") or "Sin descripción disponible."
     link = art.get("url") or "Sin link"
@@ -97,16 +97,18 @@ Link: {link}
     print("STATUS:", response.status_code)
     print("RESPONSE:", response.text)
 
+    # GUARDAR COMO ENVIADA
     noticias_enviadas.append(noticia_id)
 
     contador += 1
 
     time.sleep(1)
 
+    # LIMITAR A 10 NOTICIAS
     if contador >= 10:
         break
 
-# LIMITAR HISTORIAL A ÚLTIMAS 300 NOTICIAS
+# LIMITAR HISTORIAL
 noticias_enviadas = noticias_enviadas[-300:]
 
 # GUARDAR HISTORIAL
