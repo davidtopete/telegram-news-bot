@@ -21,10 +21,15 @@ if os.path.exists(ARCHIVO_HISTORIAL):
 else:
     noticias_enviadas = []
 
-# OBTENER NOTICIAS
+# OBTENER NOTICIAS GLOBALES DE ALTO IMPACTO
 url_news = (
-    f"https://newsapi.org/v2/top-headlines?"
-    f"language=en&pageSize=20&apiKey={NEWS_API_KEY}"
+    f"https://newsapi.org/v2/everything?"
+    f"q=(AI OR economy OR geopolitics OR war OR energy OR technology OR semiconductor OR inflation OR china OR russia OR markets)&"
+    f"domains=reuters.com,bbc.com,bloomberg.com,theverge.com,cnn.com&"
+    f"language=en&"
+    f"sortBy=publishedAt&"
+    f"pageSize=30&"
+    f"apiKey={NEWS_API_KEY}"
 )
 
 data = requests.get(url_news).json()
@@ -59,12 +64,10 @@ contador = 0
 
 # PROCESAR NOTICIAS
 for art in articulos:
-
     titulo = art.get("title") or "Sin título"
     descripcion = art.get("description") or "Sin descripción disponible."
     link = art.get("url") or "Sin link"
 
-    # IDENTIFICADOR ÚNICO
     noticia_id = link
 
     # EVITAR REPETIDAS
@@ -94,16 +97,17 @@ Link: {link}
     print("STATUS:", response.status_code)
     print("RESPONSE:", response.text)
 
-    # GUARDAR COMO ENVIADA
     noticias_enviadas.append(noticia_id)
 
     contador += 1
 
     time.sleep(1)
 
-    # LIMITAR A 10 NOTICIAS NUEVAS
     if contador >= 10:
         break
+
+# LIMITAR HISTORIAL A ÚLTIMAS 300 NOTICIAS
+noticias_enviadas = noticias_enviadas[-300:]
 
 # GUARDAR HISTORIAL
 with open(ARCHIVO_HISTORIAL, "w", encoding="utf-8") as f:
