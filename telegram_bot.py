@@ -1,5 +1,6 @@
 import os
 import time
+import json
 import html
 import requests
 from datetime import datetime
@@ -11,9 +12,19 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 fecha_hoy = datetime.now().strftime("%d/%m/%Y")
 
+ARCHIVO_HISTORIAL = "noticias_enviadas.json"
+
+# CARGAR HISTORIAL
+if os.path.exists(ARCHIVO_HISTORIAL):
+    with open(ARCHIVO_HISTORIAL, "r", encoding="utf-8") as f:
+        noticias_enviadas = json.load(f)
+else:
+    noticias_enviadas = []
+
+# OBTENER NOTICIAS
 url_news = (
     f"https://newsapi.org/v2/top-headlines?"
-    f"language=en&pageSize=10&apiKey={NEWS_API_KEY}"
+    f"language=en&pageSize=20&apiKey={NEWS_API_KEY}"
 )
 
 data = requests.get(url_news).json()
@@ -24,6 +35,7 @@ if data.get("status") != "ok":
     exit()
 
 articulos = data.get("articles", [])
+
 traductor = GoogleTranslator(source="auto", target="es")
 
 url_telegram = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
@@ -43,11 +55,21 @@ requests.post(url_telegram, data={
 
 time.sleep(1)
 
-# NOTICIAS
-for i, art in enumerate(articulos, start=1):
+contador = 0
+
+# PROCESAR NOTICIAS
+for art in articulos:
+
     titulo = art.get("title") or "Sin título"
     descripcion = art.get("description") or "Sin descripción disponible."
     link = art.get("url") or "Sin link"
+
+    # IDENTIFICADOR ÚNICO
+    noticia_id = link
+
+    # EVITAR REPETIDAS
+    if noticia_id in noticias_enviadas:
+        continue
 
     titulo_es = traductor.translate(titulo)
     descripcion_es = traductor.translate(descripcion)
@@ -56,7 +78,7 @@ for i, art in enumerate(articulos, start=1):
     descripcion_es = html.escape(descripcion_es)
     link = html.escape(link)
 
-    mensaje = f"""{i}. <b>{titulo_es}</b>
+    mensaje = f"""{contador + 1}. <b>{titulo_es}</b>
 
 {descripcion_es}
 
@@ -72,4 +94,17 @@ Link: {link}
     print("STATUS:", response.status_code)
     print("RESPONSE:", response.text)
 
+    # GUARDAR COMO ENVIADA
+    noticias_enviadas.append(noticia_id)
+
+    contador += 1
+
     time.sleep(1)
+
+    # LIMITAR A 10 NOTICIAS NUEVAS
+    if contador >= 10:
+        break
+
+# GUARDAR HISTORIAL
+with open(ARCHIVO_HISTORIAL, "w", encoding="utf-8") as f:
+    json.dump(noticias_enviadas, f, ensure_ascii=False, indent=4)
