@@ -21,14 +21,23 @@ if os.path.exists(ARCHIVO_HISTORIAL):
 else:
     noticias_enviadas = []
 
-# OBTENER NOTICIAS GLOBALES IMPORTANTES
+# CONSULTA GLOBAL + CRIPTO
+query = (
+    "(AI OR economy OR geopolitics OR war OR energy OR technology OR "
+    "semiconductor OR inflation OR china OR russia OR markets OR "
+    "bitcoin OR crypto OR cryptocurrency OR ethereum OR blockchain OR "
+    "binance OR defi OR nft OR stablecoin OR altcoins OR web3 OR "
+    "regulation OR etf OR tokenization)"
+)
+
+# OBTENER NOTICIAS
 url_news = (
     f"https://newsapi.org/v2/everything?"
-    f"q=(AI OR economy OR geopolitics OR war OR energy OR technology OR semiconductor OR inflation OR china OR russia OR markets)&"
-    f"domains=reuters.com,bbc.com,bloomberg.com,theverge.com,cnn.com&"
+    f"q={query}&"
+    f"domains=reuters.com,bbc.com,bloomberg.com,theverge.com,cnn.com,coindesk.com,cointelegraph.com,theblock.co&"
     f"language=en&"
     f"sortBy=publishedAt&"
-    f"pageSize=50&"
+    f"pageSize=60&"
     f"apiKey={NEWS_API_KEY}"
 )
 
@@ -104,8 +113,8 @@ Link: {link}
 
     time.sleep(1)
 
-    # LIMITAR A 10 NOTICIAS
-    if contador >= 10:
+    # LIMITAR A 12 NOTICIAS
+    if contador >= 12:
         break
 
 # LIMITAR HISTORIAL
