@@ -90,7 +90,7 @@ for art in articulos:
     descripcion_es = html.escape(descripcion_es)
     link = html.escape(link)
 
-    mensaje = f"""{contador + 1}. <b>{titulo_es}</b>
+    mensaje = f"""<b>{titulo_es}</b>
 
 {descripcion_es}
 
