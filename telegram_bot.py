@@ -3,7 +3,7 @@ import time
 import json
 import html
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from deep_translator import GoogleTranslator
 
 TOKEN = os.getenv("TOKEN")
@@ -11,7 +11,16 @@ CHAT_ID = os.getenv("CHAT_ID")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 fecha_hoy = datetime.now().strftime("%d/%m/%Y")
-fecha_hoy_api = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+# TIEMPO ACTUAL UTC
+ahora_utc = datetime.now(timezone.utc)
+
+# 24 HORAS HACIA ATRÁS
+desde_utc = ahora_utc - timedelta(hours=24)
+
+# FORMATO PARA NEWSAPI
+from_date = desde_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+to_date = ahora_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 ARCHIVO_HISTORIAL = "noticias_enviadas.json"
 
@@ -31,15 +40,15 @@ query = (
     "regulation OR etf OR tokenization)"
 )
 
-# OBTENER SOLO NOTICIAS DEL DÍA ACTUAL
+# OBTENER NOTICIAS ÚLTIMAS 24 HORAS
 url_news = (
     f"https://newsapi.org/v2/everything?"
     f"q={query}&"
     f"domains=reuters.com,bbc.com,bloomberg.com,theverge.com,cnn.com,coindesk.com,cointelegraph.com,theblock.co&"
     f"language=en&"
     f"sortBy=publishedAt&"
-    f"from={fecha_hoy_api}T00:00:00Z&"
-    f"to={fecha_hoy_api}T23:59:59Z&"
+    f"from={from_date}&"
+    f"to={to_date}&"
     f"pageSize=60&"
     f"apiKey={NEWS_API_KEY}"
 )
